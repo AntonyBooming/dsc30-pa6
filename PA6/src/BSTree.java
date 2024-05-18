@@ -17,7 +17,7 @@ public class BSTree<T extends Comparable<? super T>> implements Iterable {
 
     private int nelems; // number of elements stored
     private BSTNode root; // reference to root node
-    private int heightCounter;
+    private static int heightCounter;
 
     /* * * * * BST Node Inner Class * * * * */
 
@@ -372,36 +372,72 @@ public class BSTree<T extends Comparable<? super T>> implements Iterable {
         if(nelems == 0){
             return -1;
         }
-        if(root.getLeft() == null){
-            return heightCounter;
+        if(root.getLeft() == null && root.getRight() == null){
+            int locaHeightCounter = heightCounter;
+            heightCounter = 0;
+            return locaHeightCounter;
         }
         else{
-            heightCounter++;
-            return findHeightHelper(root.getLeft());
+            if(root.getLeft() != null) {
+                heightCounter++;
+                return findHeightHelper(root.getLeft());
+            }
+            else{
+                heightCounter++;
+                return findHeightHelper(root.getRight());
+            }
         }
     }
 
     /* * * * * BST Iterator * * * * */
 
     public class BSTree_Iterator implements Iterator<T> {
+
+        private Stack<BSTNode> stack;
+        private BSTNode currNodeCursor;
+
         public BSTree_Iterator() {
-            /* TODO */
+            currNodeCursor = root;
+            stack = new Stack<>();
+            if(root != null){
+                stack.push(root);
+            }
+            BSTNode currNode = root;
+            while(currNode.getLeft() != null) {
+                stack.push(currNode.getLeft());
+                currNode = currNode.getLeft();
+            }
         }
 
         public boolean hasNext() {
-            /* TODO */
-            return false;
+            if(stack.isEmpty()){
+                return false;
+            }
+            else{
+                return true;
+            }
         }
 
         public T next() {
-            /* TODO */
-            return null;
+            if (hasNext() == false){
+                throw new NoSuchElementException();
+            }
+            BSTNode currNode = stack.pop();
+            BSTNode poppedNode = currNode;
+            if(currNode.getRight() != null){
+                stack.push(currNode.getRight());
+                currNode = currNode.getRight();
+            }
+            while(currNode.getLeft() != null) {
+                stack.push(currNode.getLeft());
+                currNode = currNode.getLeft();
+            }
+            return poppedNode.getKey();
         }
     }
 
     public Iterator<T> iterator() {
-        /* TODO */
-        return null;
+        return new BSTree_Iterator();
     }
 
     /* * * * * Extra Credit Methods * * * * */
